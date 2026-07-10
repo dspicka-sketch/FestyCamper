@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BookingStatus {
+  REQUESTED
+  APPROVED
+  DECLINED
+  PAID
+  CANCELLED
+}
+
+model Festival {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  city        String
+  state       String
+  startsAt    DateTime
+  endsAt      DateTime
+  description String
+  campNotes   String
+  vans        VanFestival[]
+  bookings    BookingRequest[]
+}
+
+model Owner {
+  id        String @id @default(cuid())
+  name      String
+  email     String @unique
+  phone     String?
+  vans      Van[]
+  createdAt DateTime @default(now())
+}
+
+model Van {
+  id              String @id @default(cuid())
+  ownerId         String
+  owner           Owner @relation(fields: [ownerId], references: [id])
+  name            String
+  location        String
+  sleeps          Int
+  nightlyRateCents Int
+  cleaningFeeCents Int
+  securityDepositCents Int
+  festivalFriendly Boolean @default(true)
+  description     String
+  amenities       String
+  rules           String
+  festivals       VanFestival[]
+  bookings        BookingRequest[]
+}
+
+model VanFestival {
+  vanId      String
+  festivalId String
+  van        Van @relation(fields: [vanId], references: [id])
+  festival   Festival @relation(fields: [festivalId], references: [id])
+
+  @@id([vanId, festivalId])
+}
+
+model Bundle {
+  id          String @id @default(cuid())
+  name        String
+  slug        String @unique
+  priceCents  Int
+  description String
+  includes    String
+  bookings    BookingRequest[]
+}
+
+model BookingRequest {
+  id          String @id @default(cuid())
+  festivalId  String
+  festival    Festival @relation(fields: [festivalId], references: [id])
+  vanId       String
+  van         Van @relation(fields: [vanId], references: [id])
+  bundleId    String
+  bundle      Bundle @relation(fields: [bundleId], references: [id])
+  renterName  String
+  renterEmail String
+  renterPhone String?
+  guests      Int
+  pickupType  String
+  notes       String?
+  status      BookingStatus @default(REQUESTED)
+  totalCents  Int
+  createdAt   DateTime @default(now())
+}
+
+model OwnerLead {
+  id                   String   @id @default(cuid())
+  ownerName            String
+  email                String
+  phone                String?
+  vanYearMakeModel     String
+  sleeps               Int
+  homeCity             String
+  nightlyRateCents     Int
+  festivalAvailability String
+  photosUrl            String?
+  notes                String?
+  createdAt            DateTime @default(now())
+}
