@@ -36,10 +36,10 @@ export default async function OwnerDashboardPage() {
             <p className="text-sm text-sand-200/60">Signed in as {user.email}</p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/list-your-van"
+                href="/owner/onboarding"
                 className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-amber-glow to-amber-deep px-6 py-3 text-sm font-semibold text-forest-950 shadow-lg shadow-amber-glow/25 transition-all duration-300 hover:-translate-y-0.5"
               >
-                Submit a van listing
+                Add your van
               </Link>
               <LogoutButton />
             </div>

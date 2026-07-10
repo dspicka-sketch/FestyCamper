@@ -29,31 +29,61 @@ model Festival {
   bookings    BookingRequest[]
 }
 
+enum VanStatus {
+  DRAFT
+  PUBLISHED
+}
+
 model Owner {
-  id        String @id @default(cuid())
-  name      String
-  email     String @unique
-  phone     String?
-  vans      Van[]
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  name           String
+  email          String   @unique
+  phone          String?
+  supabaseUserId String?  @unique
+  vans           Van[]
+  createdAt      DateTime @default(now())
 }
 
 model Van {
-  id              String @id @default(cuid())
-  ownerId         String
-  owner           Owner @relation(fields: [ownerId], references: [id])
-  name            String
-  location        String
-  sleeps          Int
-  nightlyRateCents Int
-  cleaningFeeCents Int
+  id                   String     @id @default(cuid())
+  ownerId              String
+  owner                Owner      @relation(fields: [ownerId], references: [id])
+  name                 String
+  location             String
+  year                 Int?
+  make                 String?
+  model                String?
+  trim                 String?
+  sleeps               Int
+  seatbelts            Int?
+  transmission         String?
+  fuelType             String?
+  minNights            Int        @default(2)
+  weekendRateCents     Int?
+  coverPhotoUrl        String?
+  status               VanStatus  @default(DRAFT)
+  publishedAt          DateTime?
+  nightlyRateCents     Int
+  cleaningFeeCents     Int
   securityDepositCents Int
-  festivalFriendly Boolean @default(true)
-  description     String
-  amenities       String
-  rules           String
-  festivals       VanFestival[]
-  bookings        BookingRequest[]
+  festivalFriendly     Boolean    @default(true)
+  description          String
+  amenities            String
+  rules                String
+  availableFestivals   String?
+  festivals            VanFestival[]
+  photos               VanPhoto[]
+  bookings             BookingRequest[]
+}
+
+model VanPhoto {
+  id          String @id @default(cuid())
+  vanId       String
+  van         Van    @relation(fields: [vanId], references: [id], onDelete: Cascade)
+  storagePath String
+  publicUrl   String
+  sortOrder   Int    @default(0)
+  isCover     Boolean @default(false)
 }
 
 model VanFestival {
