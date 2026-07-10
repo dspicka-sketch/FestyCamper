@@ -1,35 +1,20 @@
 {
-  "name": "festycamper-mvp",
+  "name": "surfscore",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "seed": "tsx prisma/seed.ts"
-  },
-  "dependencies": {
-    "@prisma/client": "^6.0.0",
-    "@supabase/ssr": "^0.12.0",
-    "@supabase/supabase-js": "^2.110.2",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "stripe": "latest",
-    "zod": "latest"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.2",
-    "@tailwindcss/typography": "^0.5.20",
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "postcss": "^8.5.16",
-    "prisma": "^6.0.0",
-    "tailwindcss": "^4.3.2",
-    "tsx": "latest",
-    "typescript": "^5.8.3"
+    "dev": "npm run dev --workspace=@surfscore/web",
+    "build": "npm run build --workspace=@surfscore/web",
+    "start": "npm run start --workspace=@surfscore/web",
+    "lint": "npm run lint --workspace=@surfscore/web",
+    "typecheck": "npm run typecheck --workspace=@surfscore/web",
+    "test": "npm run test --workspace=@surfscore/web",
+    "prisma:generate": "npm run prisma:generate --workspace=@surfscore/web",
+    "prisma:migrate": "npm run prisma:migrate --workspace=@surfscore/web",
+    "seed": "npm run seed --workspace=@surfscore/web",
+    "dev:festycamper": "npm run dev --workspace=festycamper-mvp"
   }
 }

@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum BetaSignupStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum GoNoGoRating {
+  GO
+  MAYBE
+  NO_GO
+}
+
+model BeachLocation {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  latitude    Float
+  longitude   Float
+  accessType  String
+  description String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  catchReports CatchReport[]
+}
+
+model BetaSignup {
+  id           String           @id @default(cuid())
+  email        String           @unique
+  name         String
+  experience   String?
+  homeBreak    String?
+  status       BetaSignupStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+}
+
+model CatchReport {
+  id           String         @id @default(cuid())
+  locationId   String
+  location     BeachLocation  @relation(fields: [locationId], references: [id])
+  reporterName String
+  reporterEmail String?
+  tripDate     DateTime
+  species      String
+  fishCount    Int            @default(0)
+  baitUsed     String?
+  lureUsed     String?
+  surfScore    Int?
+  goNoGo       GoNoGoRating?
+  notes        String?
+  createdAt    DateTime       @default(now())
+}
+
+model ForecastCache {
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date
+  payload   Json
+  createdAt DateTime @default(now())
+
+  @@unique([date])
+}
