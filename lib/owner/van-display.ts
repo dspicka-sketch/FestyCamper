@@ -6,7 +6,9 @@ export function getVehicleTitle(van: Pick<Van, 'year' | 'make' | 'model' | 'name
   return parts.length > 0 ? parts.join(' ') : van.name;
 }
 
-export function getFestivalLabels(van: Pick<Van, 'availableFestivals'> & { festivals?: { festival: Festival }[] }) {
+export function getFestivalLabels(
+  van: Pick<Van, 'availableFestivals'> & { festivals?: { festival: Pick<Festival, 'name'> }[] },
+) {
   const fromDb = van.festivals?.map(({ festival }) => festival.name) ?? [];
   const fromStored =
     van.availableFestivals

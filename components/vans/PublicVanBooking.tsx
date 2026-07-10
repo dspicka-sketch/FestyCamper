@@ -13,10 +13,16 @@ type PublicVanBookingProps = {
     state: string;
   }[];
   bundles: { id: string; name: string; description: string; priceCents: number }[];
+  defaultFestivalId?: string;
 };
 
-export function PublicVanBooking({ vanId, festivals, bundles }: PublicVanBookingProps) {
-  const [festivalId, setFestivalId] = useState(festivals[0]?.id ?? '');
+export function PublicVanBooking({ vanId, festivals, bundles, defaultFestivalId }: PublicVanBookingProps) {
+  const initialFestivalId =
+    defaultFestivalId && festivals.some((f) => f.id === defaultFestivalId)
+      ? defaultFestivalId
+      : festivals[0]?.id ?? '';
+
+  const [festivalId, setFestivalId] = useState(initialFestivalId);
 
   if (festivals.length === 0) {
     return (

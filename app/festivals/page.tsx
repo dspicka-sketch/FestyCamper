@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { prisma } from '@/lib/db';
+import { formatFestivalDates } from '@/lib/dates';
 import { SiteFooter } from '@/components/home/SiteFooter';
 import { SiteHeader } from '@/components/home/SiteHeader';
 
@@ -8,17 +10,20 @@ const FESTIVAL_GRADIENTS = [
   'from-amber-600/30 via-orange-700/20 to-forest-900',
   'from-violet-600/30 via-purple-700/20 to-forest-900',
   'from-rose-600/30 via-red-700/20 to-forest-900',
+  'from-sky-600/30 via-blue-700/20 to-forest-900',
+  'from-orange-600/30 via-amber-700/20 to-forest-900',
 ];
 
-function formatFestivalDates(startsAt: Date, endsAt: Date) {
-  const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-  const start = startsAt.toLocaleDateString('en-US', opts);
-  const end = endsAt.toLocaleDateString('en-US', { ...opts, year: 'numeric' });
-  return `${start} – ${end}`;
-}
-
 export default async function FestivalsPage() {
-  const festivals = await prisma.festival.findMany({ orderBy: { startsAt: 'asc' } });
+  const festivals = await prisma.festival.findMany({
+    orderBy: { startsAt: 'asc' },
+    include: {
+      vans: {
+        where: { van: { status: 'ACTIVE' } },
+        select: { vanId: true },
+      },
+    },
+  });
 
   return (
     <div className="min-h-screen bg-forest-950 font-[family-name:var(--font-body)] text-sand-50 antialiased">
@@ -34,7 +39,7 @@ export default async function FestivalsPage() {
             Find your next festival weekend
           </h1>
           <p className="mt-4 max-w-xl text-lg text-sand-200/70">
-            Browse every upcoming drop with vans pre-approved for on-site camping and bundled weekend packages.
+            Browse every upcoming drop with real owner vans pre-approved for on-site camping and bundled weekend packages.
           </p>
           <p className="mt-6 text-sm text-sand-200/50">
             {festivals.length} festival{festivals.length === 1 ? '' : 's'} available
@@ -60,44 +65,58 @@ export default async function FestivalsPage() {
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2">
-              {festivals.map((festival, index) => (
-                <article
-                  key={festival.id}
-                  className="group relative overflow-hidden rounded-3xl border border-white/10 bg-forest-900/60 backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:border-amber-glow/30 hover:shadow-2xl hover:shadow-amber-glow/10"
-                >
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${FESTIVAL_GRADIENTS[index % FESTIVAL_GRADIENTS.length]} opacity-60 transition-opacity duration-500 group-hover:opacity-80`}
-                  />
-                  <div className="relative flex h-full flex-col p-8">
-                    <div className="flex items-start justify-between gap-4">
-                      <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-sand-200/80">
-                        {festival.city}, {festival.state}
-                      </span>
-                      <time
-                        dateTime={festival.startsAt.toISOString()}
-                        className="text-xs text-sand-200/50"
+              {festivals.map((festival, index) => {
+                const vanCount = festival.vans.length;
+                const hasVans = vanCount > 0;
+
+                return (
+                  <article
+                    key={festival.id}
+                    className="group relative overflow-hidden rounded-3xl border border-white/10 bg-forest-900/60 backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:border-amber-glow/30 hover:shadow-2xl hover:shadow-amber-glow/10"
+                  >
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br ${FESTIVAL_GRADIENTS[index % FESTIVAL_GRADIENTS.length]} opacity-60 transition-opacity duration-500 group-hover:opacity-80`}
+                    />
+                    <div className="relative flex h-full flex-col p-8">
+                      <div className="flex items-start justify-between gap-4">
+                        <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-sand-200/80">
+                          {festival.city}, {festival.state}
+                        </span>
+                        <time dateTime={festival.startsAt.toISOString()} className="text-xs text-sand-200/50">
+                          {formatFestivalDates(festival.startsAt, festival.endsAt)}
+                        </time>
+                      </div>
+
+                      <h2 className="mt-5 font-[family-name:var(--font-display)] text-2xl font-semibold text-sand-50 transition-colors group-hover:text-amber-glow">
+                        {festival.name}
+                      </h2>
+
+                      <p className="mt-3 flex-1 text-sm leading-relaxed text-sand-200/70">
+                        {festival.description}
+                      </p>
+
+                      <div className="mt-5">
+                        {hasVans ? (
+                          <span className="inline-flex rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">
+                            {vanCount} van{vanCount === 1 ? '' : 's'} available
+                          </span>
+                        ) : (
+                          <span className="inline-flex rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-sand-200/60">
+                            Join waitlist — no vans yet
+                          </span>
+                        )}
+                      </div>
+
+                      <Link
+                        href={`/festivals/${festival.slug}`}
+                        className="mt-6 inline-flex w-fit items-center justify-center rounded-full bg-gradient-to-r from-amber-glow to-amber-deep px-6 py-3 text-sm font-semibold text-forest-950 shadow-lg shadow-amber-glow/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-amber-glow/35"
                       >
-                        {formatFestivalDates(festival.startsAt, festival.endsAt)}
-                      </time>
+                        {hasVans ? 'View vans' : 'Join waitlist'}
+                      </Link>
                     </div>
-
-                    <h2 className="mt-5 font-[family-name:var(--font-display)] text-2xl font-semibold text-sand-50 transition-colors group-hover:text-amber-glow">
-                      {festival.name}
-                    </h2>
-
-                    <p className="mt-3 flex-1 text-sm leading-relaxed text-sand-200/70">
-                      {festival.description}
-                    </p>
-
-                    <Link
-                      href={`/festivals/${festival.slug}`}
-                      className="mt-6 inline-flex w-fit items-center justify-center rounded-full bg-gradient-to-r from-amber-glow to-amber-deep px-6 py-3 text-sm font-semibold text-forest-950 shadow-lg shadow-amber-glow/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-amber-glow/35"
-                    >
-                      View vans
-                    </Link>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           )}
         </div>

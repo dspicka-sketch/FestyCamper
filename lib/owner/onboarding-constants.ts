@@ -1,3 +1,5 @@
+import { FESTIVAL_CATALOG } from '@/lib/festivals/catalog';
+
 export const ONBOARDING_STEPS = [
   { id: 1, label: 'Vehicle', short: 'Vehicle' },
   { id: 2, label: 'Photos', short: 'Photos' },
@@ -20,50 +22,13 @@ export const AMENITY_OPTIONS = [
   { id: 'pet-friendly', label: 'Pet Friendly', icon: '🐾' },
 ] as const;
 
-export const FESTIVAL_OPTIONS = [
-  {
-    id: 'coachella',
-    name: 'Coachella',
-    location: 'Indio, CA',
-    gradient: 'from-rose-500/30 via-orange-500/20 to-amber-500/30',
-    dbSlug: 'coachella-weekend-1',
-  },
-  {
-    id: 'burning-man',
-    name: 'Burning Man',
-    location: 'Black Rock City, NV',
-    gradient: 'from-orange-600/30 via-amber-500/20 to-yellow-500/30',
-    dbSlug: null,
-  },
-  {
-    id: 'outside-lands',
-    name: 'Outside Lands',
-    location: 'San Francisco, CA',
-    gradient: 'from-emerald-500/30 via-teal-500/20 to-cyan-500/30',
-    dbSlug: null,
-  },
-  {
-    id: 'portola',
-    name: 'Portola',
-    location: 'San Francisco, CA',
-    gradient: 'from-violet-500/30 via-purple-500/20 to-fuchsia-500/30',
-    dbSlug: null,
-  },
-  {
-    id: 'lightning-in-a-bottle',
-    name: 'Lightning in a Bottle',
-    location: 'Buena Vista Lake, CA',
-    gradient: 'from-sky-500/30 via-blue-500/20 to-indigo-500/30',
-    dbSlug: 'lightning-in-a-bottle',
-  },
-  {
-    id: 'stagecoach',
-    name: 'Stagecoach',
-    location: 'Indio, CA',
-    gradient: 'from-amber-500/30 via-yellow-500/20 to-orange-400/30',
-    dbSlug: null,
-  },
-] as const;
+export const FESTIVAL_OPTIONS = FESTIVAL_CATALOG.map((f) => ({
+  id: f.id,
+  name: f.name,
+  location: `${f.city}, ${f.state}`,
+  gradient: f.gradient,
+  dbSlug: f.slug,
+}));
 
 export const TRANSMISSION_OPTIONS = ['Automatic', 'Manual'] as const;
 

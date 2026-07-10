@@ -3,25 +3,31 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { formatMoney } from '@/lib/pricing';
 import { FESTIVAL_OPTIONS } from '@/lib/owner/onboarding-constants';
+import { resolveFestivalSlug } from '@/lib/festivals/catalog';
 import {
   getFestivalLabels,
   getVehicleTitle,
   parseAmenityLabels,
 } from '@/lib/owner/van-display';
+import { publicVanDetailInclude } from '@/lib/vans/search';
 import { SiteFooter } from '@/components/home/SiteFooter';
 import { SiteHeader } from '@/components/home/SiteHeader';
 import { VanGallery } from '@/components/vans/VanGallery';
 import { PublicVanBooking } from '@/components/vans/PublicVanBooking';
 
-export default async function PublicVanPage({ params }: PageProps<'/vans/[id]'>) {
+type PublicVanPageProps = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function PublicVanPage({ params, searchParams }: PublicVanPageProps) {
   const { id } = await params;
+  const query = await searchParams;
+  const festivalParam = typeof query.festival === 'string' ? resolveFestivalSlug(query.festival) : undefined;
 
   const van = await prisma.van.findUnique({
     where: { id },
-    include: {
-      photos: { orderBy: { sortOrder: 'asc' } },
-      festivals: { include: { festival: true } },
-    },
+    include: publicVanDetailInclude,
   });
 
   if (!van || van.status !== 'ACTIVE') {
@@ -30,6 +36,11 @@ export default async function PublicVanPage({ params }: PageProps<'/vans/[id]'>)
 
   const bundles = await prisma.bundle.findMany({ orderBy: { priceCents: 'asc' } });
   const bookableFestivals = van.festivals.map(({ festival }) => festival);
+
+  const preselectedFestival = festivalParam
+    ? bookableFestivals.find((f) => f.slug === festivalParam)
+    : undefined;
+
   const amenityLabels = parseAmenityLabels(van.amenities);
   const festivalLabels = getFestivalLabels(van);
   const storedFestivals = van.availableFestivals?.split(',').filter(Boolean) ?? [];
@@ -46,9 +57,15 @@ export default async function PublicVanPage({ params }: PageProps<'/vans/[id]'>)
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--color-amber-glow)_0%,_transparent_50%)] opacity-10" />
 
         <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-28 sm:px-8 sm:pt-32">
-          <Link href="/#vans" className="text-sm font-medium text-amber-glow hover:text-amber-glow/80">
+          <Link href="/vans" className="text-sm font-medium text-amber-glow hover:text-amber-glow/80">
             ← Browse vans
           </Link>
+
+          {preselectedFestival && (
+            <p className="mt-4 inline-flex rounded-full border border-amber-glow/30 bg-amber-glow/10 px-3 py-1 text-xs font-semibold text-amber-glow">
+              Booking for {preselectedFestival.name}
+            </p>
+          )}
 
           <div className="mt-8 grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
             <div>
@@ -142,7 +159,12 @@ export default async function PublicVanPage({ params }: PageProps<'/vans/[id]'>)
                 </dl>
               </div>
 
-              <PublicVanBooking vanId={van.id} festivals={bookableFestivals} bundles={bundles} />
+              <PublicVanBooking
+                vanId={van.id}
+                festivals={bookableFestivals}
+                bundles={bundles}
+                defaultFestivalId={preselectedFestival?.id}
+              />
             </div>
           </div>
         </div>

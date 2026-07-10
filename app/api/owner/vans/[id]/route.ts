@@ -91,8 +91,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .join(' ');
 
   const dbSlugs = data.festivals
-    .map((festivalId) => FESTIVAL_OPTIONS.find((f) => f.id === festivalId)?.dbSlug ?? null)
-    .filter((slug): slug is NonNullable<typeof slug> => slug !== null);
+    .map((festivalId) => FESTIVAL_OPTIONS.find((f) => f.id === festivalId)?.dbSlug)
+    .filter((slug): slug is NonNullable<typeof slug> => Boolean(slug));
 
   const dbFestivals =
     dbSlugs.length > 0

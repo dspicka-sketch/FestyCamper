@@ -282,10 +282,10 @@ export default async function HomePage() {
 
           <div className="mt-16 text-center">
             <a
-              href="#festivals"
+              href="/vans"
               className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-amber-glow to-amber-deep px-8 py-4 text-base font-semibold text-forest-950 shadow-lg shadow-amber-glow/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-glow/35"
             >
-              Find your festival van
+              Browse all vans
             </a>
           </div>
         </div>

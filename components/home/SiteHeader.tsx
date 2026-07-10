@@ -17,7 +17,7 @@ export function SiteHeader() {
           <Link href="/festivals" className="text-sm font-medium text-sand-200/80 transition-colors duration-200 hover:text-amber-glow">
             Festivals
           </Link>
-          <Link href="/#vans" className="text-sm font-medium text-sand-200/80 transition-colors duration-200 hover:text-amber-glow">
+          <Link href="/vans" className="text-sm font-medium text-sand-200/80 transition-colors duration-200 hover:text-amber-glow">
             Vans
           </Link>
           <Link href="/#how-it-works" className="text-sm font-medium text-sand-200/80 transition-colors duration-200 hover:text-amber-glow">

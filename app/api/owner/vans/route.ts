@@ -153,8 +153,8 @@ export async function POST(request: Request) {
   });
 
   const dbSlugs = festivals
-    .map((id) => FESTIVAL_OPTIONS.find((f) => f.id === id)?.dbSlug ?? null)
-    .filter((slug): slug is NonNullable<typeof slug> => slug !== null);
+    .map((id) => FESTIVAL_OPTIONS.find((f) => f.id === id)?.dbSlug)
+    .filter((slug): slug is NonNullable<typeof slug> => Boolean(slug));
 
   if (dbSlugs.length > 0) {
     const dbFestivals = await prisma.festival.findMany({
