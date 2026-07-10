@@ -22,7 +22,9 @@ export default async function FestivalPage({ params }: PageProps<'/festivals/[sl
 
       <h2>Festival-approved vans</h2>
       <div className="grid">
-        {festival.vans.map(({ van }) => (
+        {festival.vans
+          .filter(({ van }) => van.status === 'ACTIVE')
+          .map(({ van }) => (
           <div className="card" key={van.id}>
             <h3>{van.name}</h3>
             <p className="muted">{van.location} · sleeps {van.sleeps}</p>
@@ -30,6 +32,7 @@ export default async function FestivalPage({ params }: PageProps<'/festivals/[sl
             <p><strong>Amenities:</strong> {van.amenities}</p>
             <p><strong>Rules:</strong> {van.rules}</p>
             <p className="price">{formatMoney(van.nightlyRateCents)} / night</p>
+            <p><a href={`/vans/${van.id}`}>View listing →</a></p>
             <BookingForm festivalId={festival.id} vanId={van.id} bundles={bundles} />
           </div>
         ))}

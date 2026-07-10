@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { prisma } from '@/lib/db';
 import { formatMoney } from '@/lib/pricing';
+import { getCoverPhotoUrl } from '@/lib/owner/van-display';
 import { SiteFooter } from '@/components/home/SiteFooter';
 import { SiteHeader } from '@/components/home/SiteHeader';
 
@@ -54,9 +55,10 @@ export default async function HomePage() {
   const [festivals, vans] = await Promise.all([
     prisma.festival.findMany({ orderBy: { startsAt: 'asc' } }),
     prisma.van.findMany({
+      where: { status: 'ACTIVE' },
       take: 4,
       orderBy: { nightlyRateCents: 'asc' },
-      include: { festivals: { include: { festival: true } } },
+      include: { photos: { orderBy: { sortOrder: 'asc' } }, festivals: { include: { festival: true } } },
     }),
   ]);
 
@@ -198,18 +200,17 @@ export default async function HomePage() {
 
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {vans.map((van, index) => {
-              const festivalSlug = van.festivals[0]?.festival.slug;
-              const href = festivalSlug ? `/festivals/${festivalSlug}` : '#festivals';
+              const coverUrl = getCoverPhotoUrl(van) ?? VAN_IMAGES[index % VAN_IMAGES.length];
 
               return (
                 <Link
                   key={van.id}
-                  href={href}
+                  href={`/vans/${van.id}`}
                   className="group overflow-hidden rounded-3xl border border-white/10 bg-forest-900/60 transition-all duration-500 hover:-translate-y-2 hover:border-amber-glow/30 hover:shadow-2xl hover:shadow-black/40"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <Image
-                      src={VAN_IMAGES[index % VAN_IMAGES.length]}
+                      src={coverUrl}
                       alt={van.name}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"

@@ -131,7 +131,7 @@ export async function POST(request: Request) {
       minNights,
       weekendRateCents: pricing.weekendPricing ? dollarsToCents(pricing.weekendPremium) : null,
       coverPhotoUrl: cover.publicUrl,
-      status: 'PUBLISHED',
+      status: 'ACTIVE',
       publishedAt: new Date(),
       nightlyRateCents: dollarsToCents(pricing.nightlyRate),
       cleaningFeeCents: dollarsToCents(pricing.cleaningFee),

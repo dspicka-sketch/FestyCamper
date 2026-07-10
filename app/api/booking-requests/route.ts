@@ -22,14 +22,25 @@ export async function POST(req: Request) {
   }
 
   const { festivalId, vanId, bundleId, ...data } = parsed.data;
-  const [festival, van, bundle] = await Promise.all([
+  const [festival, van, bundle, vanFestivalLink] = await Promise.all([
     prisma.festival.findUnique({ where: { id: festivalId } }),
     prisma.van.findUnique({ where: { id: vanId } }),
-    prisma.bundle.findUnique({ where: { id: bundleId } })
+    prisma.bundle.findUnique({ where: { id: bundleId } }),
+    prisma.vanFestival.findUnique({
+      where: { vanId_festivalId: { vanId, festivalId } },
+    }),
   ]);
 
   if (!festival || !van || !bundle) {
     return NextResponse.json({ error: 'Invalid festival, van, or bundle.' }, { status: 404 });
+  }
+
+  if (van.status !== 'ACTIVE') {
+    return NextResponse.json({ error: 'This van is not available for booking.' }, { status: 400 });
+  }
+
+  if (!vanFestivalLink) {
+    return NextResponse.json({ error: 'This van is not available for the selected festival.' }, { status: 400 });
   }
 
   const nights = Math.max(1, Math.ceil((festival.endsAt.getTime() - festival.startsAt.getTime()) / 86400000));

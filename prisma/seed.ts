@@ -31,7 +31,7 @@ async function main() {
     prisma.van.create({ data: {
       ownerId: owner.id, name: 'Desert Rambler', location: 'Los Angeles, CA', sleeps: 2,
       nightlyRateCents: 24500, cleaningFeeCents: 12500, securityDepositCents: 150000,
-      status: 'PUBLISHED',
+      status: 'ACTIVE',
       description: 'Compact festival-ready RV with queen bed, fridge, solar, and outdoor kitchen.',
       amenities: 'Queen bed, fridge, solar, camp stove, bedding, USB power, privacy shades',
       rules: 'Festival use approved. No smoking inside. Dust cleaning fee may apply.'
@@ -39,7 +39,7 @@ async function main() {
     prisma.van.create({ data: {
       ownerId: owner.id, name: 'Bass Camp Sprinter', location: 'San Francisco, CA', sleeps: 3,
       nightlyRateCents: 32500, cleaningFeeCents: 17500, securityDepositCents: 200000,
-      status: 'PUBLISHED',
+      status: 'ACTIVE',
       description: 'Premium Sprinter build for festival camping with solar, awning, and indoor lounge.',
       amenities: 'Solar, awning, kitchenette, bedding, folding table, camp chairs, power station',
       rules: 'Festival use approved with inspection. No roof access. No off-road driving.'
