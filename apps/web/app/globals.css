@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ocean-50: #eef8fb;
+  --color-ocean-100: #d5edf5;
+  --color-ocean-200: #a8d9ea;
+  --color-ocean-300: #6bbdd8;
+  --color-ocean-400: #3a9fbe;
+  --color-ocean-500: #1f839f;
+  --color-ocean-600: #1a687f;
+  --color-ocean-700: #195569;
+  --color-ocean-800: #1a4757;
+  --color-ocean-900: #1a3c4a;
+  --color-ocean-950: #0c2733;
+
+  --color-sand-50: #faf6ef;
+  --color-sand-100: #f3ead8;
+  --color-sand-200: #e6d3b0;
+  --color-sand-300: #d7b881;
+  --color-sand-400: #c99a55;
+  --color-sand-500: #bf8440;
+
+  --color-go: #16a34a;
+  --color-maybe: #ca8a04;
+  --color-nogo: #dc2626;
+
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body {
+  @apply bg-ocean-950 text-sand-50 antialiased;
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.score-ring-go {
+  @apply border-go text-go;
+}
+
+.score-ring-maybe {
+  @apply border-maybe text-maybe;
+}
+
+.score-ring-nogo {
+  @apply border-nogo text-nogo;
+}

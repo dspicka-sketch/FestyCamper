@@ -1,39 +1,36 @@
-# Dependencies
+# SurfScore monorepo
 node_modules/
+apps/*/node_modules/
 
 # Next.js
 .next/
 out/
+apps/*/.next/
 
-# Environment variables
+# Environment
 .env
 .env*.local
+apps/*/.env
+apps/*/.env*.local
 
 # Prisma / database
-prisma/dev.db
-prisma/dev.db-journal
 *.db
 *.db-journal
+prisma/dev.db
 
 # Debug logs
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+apps/*/next-env.d.ts
 
-# OS files
+# OS / IDE
 .DS_Store
-Thumbs.db
-
-# IDE / editor
 .idea/
 .vscode/
-*.swp
-*.swo
 
 # Vercel
 .vercel
