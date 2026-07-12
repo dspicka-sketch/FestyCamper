@@ -6,6 +6,8 @@ import { getCoverPhotoUrl } from '@/lib/owner/van-display';
 import { SiteFooter } from '@/components/home/SiteFooter';
 import { SiteHeader } from '@/components/home/SiteHeader';
 
+export const dynamic = 'force-dynamic';
+
 const HERO_IMAGE =
   'https://images.unsplash.com/photo-1527786356704-89daa58a37d8?auto=format&fit=crop&w=2400&q=80';
 
