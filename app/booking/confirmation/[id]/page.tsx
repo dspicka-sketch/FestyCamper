@@ -72,9 +72,14 @@ export default async function BookingConfirmationPage({
             <span className="text-sand-100">{booking.renterEmail}</span>.
           </p>
 
-          {deposit === 'success' && (
+          {booking.status === 'PAID' && (
             <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-200">
-              Deposit payment received. Thank you — our team will confirm your booking shortly.
+              Deposit payment received and verified. Thank you — our team will confirm your trip details shortly.
+            </div>
+          )}
+          {deposit === 'success' && booking.status !== 'PAID' && (
+            <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-sky-500/30 bg-sky-500/10 px-5 py-4 text-sm text-sky-200">
+              Payment is processing. This page will show the verified status after Stripe confirms it.
             </div>
           )}
           {deposit === 'cancelled' && (
@@ -140,7 +145,17 @@ export default async function BookingConfirmationPage({
               Reference #{booking.id.slice(0, 8).toUpperCase()}
             </p>
 
-            <PayDepositButton bookingId={booking.id} />
+            {booking.status === 'PAID' ? (
+              <div className="mt-8 rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-5 text-sm text-emerald-200">
+                Verified deposit: {formatMoney(booking.depositPaidCents)}
+              </div>
+            ) : booking.status === 'DECLINED' || booking.status === 'CANCELLED' ? (
+              <div className="mt-8 rounded-2xl border border-rose-500/25 bg-rose-500/10 p-5 text-sm text-rose-200">
+                This booking is no longer eligible for payment. Contact support if you believe this is an error.
+              </div>
+            ) : (
+              <PayDepositButton bookingId={booking.id} />
+            )}
           </div>
 
           <div className="mt-10">

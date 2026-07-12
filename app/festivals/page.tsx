@@ -5,6 +5,8 @@ import { formatFestivalDates } from '@/lib/dates';
 import { SiteFooter } from '@/components/home/SiteFooter';
 import { SiteHeader } from '@/components/home/SiteHeader';
 
+export const dynamic = 'force-dynamic';
+
 const FESTIVAL_GRADIENTS = [
   'from-emerald-600/30 via-teal-700/20 to-forest-900',
   'from-amber-600/30 via-orange-700/20 to-forest-900',

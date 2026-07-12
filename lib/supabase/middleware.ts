@@ -34,7 +34,8 @@ export async function updateSession(request: NextRequest) {
   if (
     (pathname.startsWith('/owner/dashboard') ||
       pathname.startsWith('/owner/vans') ||
-      pathname === '/owner/onboarding') &&
+      pathname === '/owner/onboarding' ||
+      pathname.startsWith('/admin')) &&
     !user
   ) {
     const loginUrl = request.nextUrl.clone();

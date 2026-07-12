@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { BookingStatus } from '@prisma/client';
 import { prisma } from '@/lib/db';
 import { formatFestivalDates } from '@/lib/dates';
@@ -6,6 +7,7 @@ import { formatMoney } from '@/lib/pricing';
 import { BookingActions } from '@/components/admin/BookingActions';
 import { SiteFooter } from '@/components/home/SiteFooter';
 import { SiteHeader } from '@/components/home/SiteHeader';
+import { createClient } from '@/lib/supabase/server';
 
 const STATUS_STYLES: Record<BookingStatus, string> = {
   REQUESTED: 'bg-amber-glow/15 text-amber-glow ring-amber-glow/30',
@@ -94,6 +96,17 @@ function EmptyState({
 }
 
 export default async function AdminPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const allowed = new Set(
+    (process.env.ADMIN_EMAILS ?? '')
+      .split(',')
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean),
+  );
+
+  if (!user?.email || !allowed.has(user.email.toLowerCase())) redirect('/');
+
   const [requests, leads] = await Promise.all([
     prisma.bookingRequest.findMany({
       orderBy: { createdAt: 'desc' },
@@ -243,7 +256,7 @@ export default async function AdminPage() {
                             <p className="font-semibold text-amber-glow">{formatMoney(request.totalCents)}</p>
                           </td>
                           <td className="px-6 py-5">
-                            <BookingActions email={request.renterEmail} renterName={request.renterName} />
+                            <BookingActions bookingId={request.id} email={request.renterEmail} renterName={request.renterName} status={request.status} />
                           </td>
                         </tr>
                       ))}
@@ -277,7 +290,7 @@ export default async function AdminPage() {
                         </div>
                       </dl>
                       <div className="mt-5">
-                        <BookingActions email={request.renterEmail} renterName={request.renterName} />
+                        <BookingActions bookingId={request.id} email={request.renterEmail} renterName={request.renterName} status={request.status} />
                       </div>
                     </article>
                   ))}
