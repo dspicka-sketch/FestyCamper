@@ -34,6 +34,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Booking not found.' }, { status: 404 });
   }
 
+  if (booking.status === 'PAID') {
+    return NextResponse.json({ error: 'This deposit has already been paid.' }, { status: 409 });
+  }
+
+  if (booking.status === 'DECLINED' || booking.status === 'CANCELLED') {
+    return NextResponse.json({ error: 'This booking is no longer eligible for payment.' }, { status: 409 });
+  }
+
+  const conflictingBooking = await prisma.bookingRequest.findFirst({
+    where: {
+      id: { not: booking.id },
+      vanId: booking.vanId,
+      festivalId: booking.festivalId,
+      status: { in: ['APPROVED', 'PAID'] },
+    },
+    select: { id: true },
+  });
+
+  if (conflictingBooking) {
+    return NextResponse.json({ error: 'This RV is no longer available for the selected festival.' }, { status: 409 });
+  }
+
   const appUrl = getAppUrl();
   const confirmationUrl = `${appUrl}/booking/confirmation/${booking.id}`;
 
@@ -60,6 +82,12 @@ export async function POST(req: Request) {
       },
       success_url: `${confirmationUrl}?deposit=success`,
       cancel_url: `${confirmationUrl}?deposit=cancelled`,
+      client_reference_id: booking.id,
+    });
+
+    await prisma.bookingRequest.update({
+      where: { id: booking.id },
+      data: { stripeCheckoutSessionId: session.id },
     });
 
     if (!session.url) {

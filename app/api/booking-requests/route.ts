@@ -43,6 +43,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'This van is not available for the selected festival.' }, { status: 400 });
   }
 
+  const conflictingBooking = await prisma.bookingRequest.findFirst({
+    where: {
+      vanId,
+      festivalId,
+      status: { in: ['APPROVED', 'PAID'] },
+    },
+    select: { id: true },
+  });
+
+  if (conflictingBooking) {
+    return NextResponse.json(
+      { error: 'This RV is no longer available for the selected festival.' },
+      { status: 409 },
+    );
+  }
+
   const nights = Math.max(1, Math.ceil((festival.endsAt.getTime() - festival.startsAt.getTime()) / 86400000));
   const totalCents = calculateTotalCents({
     nightlyRateCents: van.nightlyRateCents,
