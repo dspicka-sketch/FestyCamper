@@ -161,6 +161,8 @@ export default async function PublicVanPage({ params, searchParams }: PublicVanP
 
               <PublicVanBooking
                 vanId={van.id}
+                minNights={van.minNights}
+                maxGuests={van.sleeps}
                 festivals={bookableFestivals}
                 bundles={bundles}
                 defaultFestivalId={preselectedFestival?.id}

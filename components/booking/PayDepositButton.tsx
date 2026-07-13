@@ -10,7 +10,13 @@ function formatApiError(error: unknown): string {
   return 'Unable to start checkout. Please try again.';
 }
 
-export function PayDepositButton({ bookingId }: { bookingId: string }) {
+type PayDepositButtonProps = {
+  bookingId: string;
+  accessToken: string;
+  disabled?: boolean;
+};
+
+export function PayDepositButton({ bookingId, accessToken, disabled }: PayDepositButtonProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -22,7 +28,7 @@ export function PayDepositButton({ bookingId }: { bookingId: string }) {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId }),
+        body: JSON.stringify({ bookingId, accessToken }),
       });
 
       let data: { error?: unknown; url?: string } = {};
@@ -61,13 +67,13 @@ export function PayDepositButton({ bookingId }: { bookingId: string }) {
             Secure your spot with a deposit
           </h3>
           <p className="mt-1 text-sm text-sand-200/70">
-            Pay a $250 refundable deposit now. Remaining balance is due after approval.
+            The owner approved your request. Pay a $250 refundable deposit to hold your dates.
           </p>
         </div>
         <button
           type="button"
           onClick={handlePayDeposit}
-          disabled={loading}
+          disabled={loading || disabled}
           className="inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-amber-glow to-amber-deep px-6 py-3 text-sm font-semibold text-forest-950 shadow-lg shadow-amber-glow/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-amber-glow/35 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? 'Redirecting…' : 'Pay Deposit — $250'}

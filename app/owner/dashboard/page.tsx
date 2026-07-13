@@ -29,6 +29,12 @@ export default async function OwnerDashboardPage() {
     ? await prisma.van.count({ where: { ownerId: owner.id, status: 'ACTIVE' } })
     : 0;
 
+  const pendingBookings = owner
+    ? await prisma.bookingRequest.count({
+        where: { van: { ownerId: owner.id }, status: 'REQUESTED' },
+      })
+    : 0;
+
   return (
     <div className="min-h-screen bg-forest-950 font-[family-name:var(--font-body)] text-sand-50 antialiased">
       <SiteHeader />
@@ -46,9 +52,10 @@ export default async function OwnerDashboardPage() {
             Manage your festival-ready vans, track listing status, and respond to booking requests.
           </p>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-4">
             <StatCard label="Total listings" value={String(totalVans)} />
             <StatCard label="Active listings" value={String(activeVans)} />
+            <StatCard label="Pending requests" value={String(pendingBookings)} />
             <StatCard label="Paused / draft" value={String(Math.max(totalVans - activeVans, 0))} />
           </div>
 
@@ -66,6 +73,12 @@ export default async function OwnerDashboardPage() {
                 className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-sand-100 transition-all duration-200 hover:border-amber-glow/40 hover:bg-white/10"
               >
                 Manage listings
+              </Link>
+              <Link
+                href="/owner/bookings"
+                className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-sand-100 transition-all duration-200 hover:border-amber-glow/40 hover:bg-white/10"
+              >
+                Booking requests{pendingBookings > 0 ? ` (${pendingBookings})` : ''}
               </Link>
               <LogoutButton />
             </div>

@@ -34,6 +34,7 @@ export async function updateSession(request: NextRequest) {
   if (
     (pathname.startsWith('/owner/dashboard') ||
       pathname.startsWith('/owner/vans') ||
+      pathname.startsWith('/owner/bookings') ||
       pathname === '/owner/onboarding' ||
       pathname.startsWith('/admin')) &&
     !user

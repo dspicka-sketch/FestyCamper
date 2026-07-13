@@ -16,6 +16,11 @@ enum BookingStatus {
   CANCELLED
 }
 
+enum BookingMessageRole {
+  RENTER
+  OWNER
+}
+
 model Festival {
   id          String   @id @default(cuid())
   name        String
@@ -122,6 +127,13 @@ model BookingRequest {
   guests      Int
   pickupType  String
   notes       String?
+  arrivalAt   DateTime @db.Date
+  departureAt DateTime @db.Date
+  nights      Int
+  renterMessage String?
+  tripNeeds     String?
+  declineReason String?
+  approvedAt    DateTime?
   status      BookingStatus @default(REQUESTED)
   totalCents               Int
   depositPaidCents         Int       @default(0)
@@ -130,6 +142,28 @@ model BookingRequest {
   paidAt                   DateTime?
   createdAt                DateTime  @default(now())
   updatedAt                DateTime  @updatedAt
+  messages                 BookingMessage[]
+  accessToken              BookingAccessToken?
+}
+
+model BookingMessage {
+  id         String             @id @default(cuid())
+  bookingId  String
+  booking    BookingRequest     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  senderRole BookingMessageRole
+  body       String
+  createdAt  DateTime           @default(now())
+
+  @@index([bookingId, createdAt])
+}
+
+model BookingAccessToken {
+  id        String         @id @default(cuid())
+  bookingId String         @unique
+  booking   BookingRequest @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  tokenHash String         @unique
+  createdAt DateTime       @default(now())
+  expiresAt DateTime
 }
 
 model OwnerLead {

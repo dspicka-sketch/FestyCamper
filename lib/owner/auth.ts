@@ -33,3 +33,18 @@ export async function getVanForOwner(vanId: string, ownerId: string) {
     },
   });
 }
+
+export async function getOwnerBooking(bookingId: string, ownerId: string) {
+  return prisma.bookingRequest.findFirst({
+    where: {
+      id: bookingId,
+      van: { ownerId },
+    },
+    include: {
+      festival: true,
+      van: true,
+      bundle: true,
+      messages: { orderBy: { createdAt: 'asc' } },
+    },
+  });
+}
