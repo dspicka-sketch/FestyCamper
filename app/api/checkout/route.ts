@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import Stripe from 'stripe';
+import { getBookingByAccessToken } from '@/lib/booking/access-token';
+import { findOverlappingApprovedBooking } from '@/lib/booking/conflicts';
 import { prisma } from '@/lib/db';
 import { stripe } from '@/lib/stripe';
 import { DEPOSIT_AMOUNT_CENTS, getAppUrl, isStripeConfigured } from '@/lib/stripe-config';
 
 const schema = z.object({
   bookingId: z.string().min(1),
+  accessToken: z.string().min(1),
 });
 
 export async function POST(req: Request) {
@@ -22,42 +25,36 @@ export async function POST(req: Request) {
 
   const parsed = schema.safeParse(await req.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid request. Booking ID is required.' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid request. Booking ID and access token are required.' }, { status: 400 });
   }
 
-  const booking = await prisma.bookingRequest.findUnique({
-    where: { id: parsed.data.bookingId },
-    include: { festival: true, van: true, bundle: true },
+  const tokenResult = await getBookingByAccessToken(parsed.data.accessToken);
+  if (!tokenResult || tokenResult.booking.id !== parsed.data.bookingId) {
+    return NextResponse.json({ error: 'Invalid or expired booking link.' }, { status: 404 });
+  }
+
+  const booking = tokenResult.booking;
+
+  if (booking.status !== 'APPROVED') {
+    if (booking.status === 'PAID') {
+      return NextResponse.json({ error: 'This deposit has already been paid.' }, { status: 409 });
+    }
+    return NextResponse.json({ error: 'Deposit payment is only available after owner approval.' }, { status: 409 });
+  }
+
+  const overlapping = await findOverlappingApprovedBooking({
+    vanId: booking.vanId,
+    arrivalAt: booking.arrivalAt,
+    departureAt: booking.departureAt,
+    excludeBookingId: booking.id,
   });
 
-  if (!booking) {
-    return NextResponse.json({ error: 'Booking not found.' }, { status: 404 });
-  }
-
-  if (booking.status === 'PAID') {
-    return NextResponse.json({ error: 'This deposit has already been paid.' }, { status: 409 });
-  }
-
-  if (booking.status === 'DECLINED' || booking.status === 'CANCELLED') {
-    return NextResponse.json({ error: 'This booking is no longer eligible for payment.' }, { status: 409 });
-  }
-
-  const conflictingBooking = await prisma.bookingRequest.findFirst({
-    where: {
-      id: { not: booking.id },
-      vanId: booking.vanId,
-      festivalId: booking.festivalId,
-      status: { in: ['APPROVED', 'PAID'] },
-    },
-    select: { id: true },
-  });
-
-  if (conflictingBooking) {
-    return NextResponse.json({ error: 'This RV is no longer available for the selected festival.' }, { status: 409 });
+  if (overlapping) {
+    return NextResponse.json({ error: 'This RV is no longer available for the selected dates.' }, { status: 409 });
   }
 
   const appUrl = getAppUrl();
-  const confirmationUrl = `${appUrl}/booking/confirmation/${booking.id}`;
+  const confirmationUrl = `${appUrl}/booking/access/${parsed.data.accessToken}`;
 
   try {
     const session = await stripe.checkout.sessions.create({

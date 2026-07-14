@@ -1,28 +1,47 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { BookingForm } from '@/components/BookingForm';
+import { formatDateInput } from '@/lib/booking/dates';
+
+type FestivalOption = {
+  id: string;
+  name: string;
+  slug: string;
+  city: string;
+  state: string;
+  startsAt: string | Date;
+  endsAt: string | Date;
+};
 
 type PublicVanBookingProps = {
   vanId: string;
-  festivals: {
-    id: string;
-    name: string;
-    slug: string;
-    city: string;
-    state: string;
-  }[];
+  minNights: number;
+  maxGuests: number;
+  festivals: FestivalOption[];
   bundles: { id: string; name: string; description: string; priceCents: number }[];
   defaultFestivalId?: string;
 };
 
-export function PublicVanBooking({ vanId, festivals, bundles, defaultFestivalId }: PublicVanBookingProps) {
+export function PublicVanBooking({
+  vanId,
+  minNights,
+  maxGuests,
+  festivals,
+  bundles,
+  defaultFestivalId,
+}: PublicVanBookingProps) {
   const initialFestivalId =
     defaultFestivalId && festivals.some((f) => f.id === defaultFestivalId)
       ? defaultFestivalId
       : festivals[0]?.id ?? '';
 
   const [festivalId, setFestivalId] = useState(initialFestivalId);
+
+  const selectedFestival = useMemo(
+    () => festivals.find((festival) => festival.id === festivalId),
+    [festivals, festivalId],
+  );
 
   if (festivals.length === 0) {
     return (
@@ -34,6 +53,13 @@ export function PublicVanBooking({ vanId, festivals, bundles, defaultFestivalId 
     );
   }
 
+  const defaultArrival = selectedFestival
+    ? formatDateInput(new Date(selectedFestival.startsAt))
+    : '';
+  const defaultDeparture = selectedFestival
+    ? formatDateInput(new Date(selectedFestival.endsAt))
+    : '';
+
   return (
     <div className="rounded-3xl border border-amber-glow/20 bg-gradient-to-br from-amber-glow/10 via-forest-900/80 to-forest-950/80 p-6 sm:p-8">
       <p className="text-sm font-semibold uppercase tracking-widest text-amber-glow">Request to Book</p>
@@ -41,7 +67,7 @@ export function PublicVanBooking({ vanId, festivals, bundles, defaultFestivalId 
         Reserve this van for your festival
       </h2>
       <p className="mt-2 text-sm text-sand-200/70">
-        Choose your festival, pick a package, and submit a booking request. No payment until approved.
+        Choose your dates, review the estimate, and submit a request. The owner can reply before you pay anything.
       </p>
 
       {festivals.length > 1 && (
@@ -61,9 +87,17 @@ export function PublicVanBooking({ vanId, festivals, bundles, defaultFestivalId 
         </div>
       )}
 
-      {festivalId && (
-        <div className="mt-6">
-          <BookingForm festivalId={festivalId} vanId={vanId} bundles={bundles} />
+      {festivalId && selectedFestival && (
+        <div className="mt-6" key={festivalId}>
+          <BookingForm
+            festivalId={festivalId}
+            vanId={vanId}
+            minNights={minNights}
+            maxGuests={maxGuests}
+            defaultArrival={defaultArrival}
+            defaultDeparture={defaultDeparture}
+            bundles={bundles}
+          />
         </div>
       )}
     </div>

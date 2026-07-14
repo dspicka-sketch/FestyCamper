@@ -96,7 +96,7 @@ export const publicVanListInclude = {
 
 export const publicVanDetailInclude = {
   photos: { orderBy: { sortOrder: 'asc' as const } },
-  festivals: { include: { festival: { select: { id: true, name: true, slug: true, city: true, state: true } } } },
+  festivals: { include: { festival: { select: { id: true, name: true, slug: true, city: true, state: true, startsAt: true, endsAt: true } } } },
 } satisfies Prisma.VanInclude;
 
 /** Extract display city from van location — never expose owner PII */
