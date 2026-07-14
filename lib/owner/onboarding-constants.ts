@@ -1,4 +1,5 @@
 import { FESTIVAL_CATALOG } from '@/lib/festivals/catalog';
+import { getFestivalHeroDna } from '@/lib/festivals/hero-dna';
 
 export const ONBOARDING_STEPS = [
   { id: 1, label: 'Vehicle', short: 'Vehicle' },
@@ -26,7 +27,7 @@ export const FESTIVAL_OPTIONS = FESTIVAL_CATALOG.map((f) => ({
   id: f.id,
   name: f.name,
   location: `${f.city}, ${f.state}`,
-  gradient: f.gradient,
+  gradient: getFestivalHeroDna(f.slug).colorWash,
   dbSlug: f.slug,
 }));
 
