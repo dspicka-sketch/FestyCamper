@@ -109,12 +109,12 @@ export function FestivalHero({
               )}
 
               <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-                <a
-                  href="#plan-your-weekend"
+                <Link
+                  href={`/festivals/${slug}/plan`}
                   className={`inline-flex items-center justify-center rounded-full bg-gradient-to-r px-8 py-4 text-base font-semibold text-forest-950 shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl ${dna.ctaFrom} ${dna.ctaTo} ${dna.ctaShadow}`}
                 >
                   Plan My Festival
-                </a>
+                </Link>
                 <a
                   href="#available-vans"
                   className={`inline-flex items-center justify-center rounded-full border bg-white/10 px-8 py-4 text-base font-semibold text-sand-50 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/15 ${dna.monogramBorder}`}
